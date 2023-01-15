@@ -1,5 +1,5 @@
 import torch
-from torch_geometric.nn import MessagePassing
+from torch_geometric.nn import MessagePassing,GATConv
 import torch.nn.functional as F
 from torch_geometric.nn import global_mean_pool, global_add_pool
 from torch_geometric.utils import degree
@@ -65,8 +65,6 @@ class GCNConv(MessagePassing):
     def update(self, aggr_out):
         return aggr_out
 
-
-
 ### GNN to generate node embedding
 class GNN_node(torch.nn.Module):
     """
@@ -101,6 +99,8 @@ class GNN_node(torch.nn.Module):
                 self.convs.append(GINConv(emb_dim))
             elif gnn_type == 'gcn':
                 self.convs.append(GCNConv(emb_dim))
+            elif gnn_type == 'gat':
+                self.convs.append(GATConv(emb_dim,emb_dim))
             else:
                 raise ValueError('Undefined GNN type called {}'.format(gnn_type))
 
@@ -114,7 +114,7 @@ class GNN_node(torch.nn.Module):
 
         h_list = [self.node_encoder(x, node_depth.view(-1,))]
         for layer in range(self.num_layer):
-
+            edge_attr=None
             h = self.convs[layer](h_list[layer], edge_index, edge_attr)
             h = self.batch_norms[layer](h)
 

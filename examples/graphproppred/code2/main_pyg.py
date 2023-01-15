@@ -4,6 +4,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torchvision import transforms
 from gnn import GNN
+from sklearn.metrics import roc_auc_score, average_precision_score
 
 from tqdm import tqdm
 import argparse
@@ -102,8 +103,8 @@ def main():
                         help='dimensionality of hidden units in GNNs (default: 300)')
     parser.add_argument('--batch_size', type=int, default=128,
                         help='input batch size for training (default: 128)')
-    parser.add_argument('--epochs', type=int, default=25,
-                        help='number of epochs to train (default: 25)')
+    parser.add_argument('--epochs', type=int, default=20,
+                        help='number of epochs to train (default: 20)')
     parser.add_argument('--random_split', action='store_true')
     parser.add_argument('--num_workers', type=int, default=0,
                         help='number of workers (default: 0)')
@@ -226,6 +227,8 @@ def main():
         model = GNN(num_vocab = len(vocab2idx), max_seq_len = args.max_seq_len, node_encoder = node_encoder, num_layer = args.num_layer, gnn_type = 'gcn', emb_dim = args.emb_dim, drop_ratio = args.drop_ratio, virtual_node = False).to(device)
     elif args.gnn == 'gcn-virtual':
         model = GNN(num_vocab = len(vocab2idx), max_seq_len = args.max_seq_len, node_encoder = node_encoder, num_layer = args.num_layer, gnn_type = 'gcn', emb_dim = args.emb_dim, drop_ratio = args.drop_ratio, virtual_node = True).to(device)
+    elif args.gnn == 'gat':
+        model = GNN(num_vocab = len(vocab2idx), max_seq_len = args.max_seq_len, node_encoder = node_encoder, num_layer = args.num_layer, gnn_type = 'gat', emb_dim = args.emb_dim, drop_ratio = args.drop_ratio, virtual_node = False).to(device)
     else:
         raise ValueError('Invalid GNN type')
 
